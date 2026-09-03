@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#07110d">
+<title>Faeq Store</title>
+<style>
+:root{--bg:#f5f8f7;--card:#fff;--text:#18231f;--muted:#81918b;--green:#00a978;--green2:#00c58a;--line:#dcebe5;--dark:#07110d;--pink:#ed1474;--shadow:0 12px 35px rgba(10,45,35,.10)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
+button,input{font:inherit}button{cursor:pointer;border:0}
+.container{width:min(1100px,calc(100% - 28px));margin:auto}
+.topbar{height:76px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#00b87b,#ef1474);display:grid;place-items:center;color:#fff;font-weight:950;font-size:18px}
+.brand h1{font-size:23px;letter-spacing:-.5px}.brand p{color:#6e817a;font-size:13px;font-weight:700}
+.top-actions{margin-left:auto;display:flex;gap:9px}.btn{padding:11px 16px;border-radius:13px;font-weight:850}.outline{background:#fff;border:1px solid var(--line);color:#40534c}.primary{background:var(--dark);color:#fff}
+.ticker{background:#eef5f2;border-bottom:1px solid var(--line);overflow:hidden;white-space:nowrap;padding:10px 0;color:#536860;font-weight:750}.ticker span{margin-right:65px}.dot{color:var(--green);margin-right:8px}
+.hero{margin:27px auto 22px;border-radius:25px;overflow:hidden;min-height:260px;background:linear-gradient(115deg,#71ff8f,#12d499 53%,#063d2f);position:relative;box-shadow:var(--shadow)}
+.hero:before{content:"";position:absolute;right:-100px;top:-120px;width:430px;height:430px;border:70px solid rgba(255,255,255,.10);border-radius:50%}
+.hero:after{content:"✦  +  ×  ✦";position:absolute;right:25px;bottom:25px;color:rgba(255,255,255,.28);font-size:36px;font-weight:900}
+.hero-content{position:relative;z-index:2;padding:40px;max-width:680px}.badge{display:inline-flex;background:rgba(0,0,0,.15);color:#fff;border-radius:999px;padding:7px 12px;font-size:12px;font-weight:900}
+.hero h2{font-size:clamp(38px,7vw,66px);line-height:.94;margin:15px 0 10px;color:#05382b;letter-spacing:-3px}.hero p{color:#083d31;font-weight:750}.hero .cta{margin-top:19px;background:#fff;color:#063c2e;padding:12px 18px;border-radius:13px;font-weight:900}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:25px 0 14px}.title{font-size:27px;font-weight:950}.title:before{content:"";display:inline-block;width:7px;height:32px;border-radius:8px;background:var(--green);vertical-align:-7px;margin-right:12px}.sort{padding:11px 15px;background:#fff;border:1px solid var(--line);border-radius:14px;font-weight:800;color:#53635d}
+.categories{display:flex;gap:9px;overflow:auto;padding-bottom:5px;margin-bottom:17px}.cat{white-space:nowrap;background:#fff;border:1px solid #e4eeea;border-radius:15px;padding:11px 18px;font-weight:800;color:#51625c}.cat.active{background:#050a08;color:#fff;border-color:#050a08}
+.products{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.product{background:#fff;border:1px solid #e0ece7;border-radius:23px;overflow:hidden;box-shadow:0 7px 24px rgba(10,45,35,.06);transition:.2s}.product:hover{transform:translateY(-3px)}
+.thumb{height:205px;position:relative;display:flex;align-items:flex-end;padding:15px;background:linear-gradient(135deg,#13cf8e,#063e31)}.thumb.rare{background:linear-gradient(135deg,#d9d2bd,#5b554d)}.thumb:before{content:"FAEQ";position:absolute;left:16px;top:42px;font-size:65px;font-weight:1000;letter-spacing:-5px;color:rgba(255,255,255,.2)}
+.ribbon{position:absolute;top:11px;left:13px;background:#05ad7b;color:#fff;padding:6px 10px;border-radius:10px;font-size:11px;font-weight:900}.ribbon.rare{background:#b49a50}.soldout{position:absolute;right:12px;top:12px;background:rgba(45,45,45,.65);color:#fff;padding:6px 9px;border-radius:10px;font-size:10px;font-weight:900}.prodname{background:rgba(0,0,0,.67);color:#fff;padding:9px 12px;border-radius:10px;font-weight:900;position:relative}
+.info{padding:17px}.desc{color:#748780;line-height:1.45;min-height:48px}.old{text-decoration:line-through;color:#9ca9a5;font-size:13px;margin-top:9px}.price-row{display:flex;align-items:end;justify-content:space-between}.price{font-size:21px;font-weight:950}.soldcount{font-size:13px;color:#6d8179;font-weight:800}.buy{width:100%;margin-top:13px;padding:12px;border-radius:12px;background:#eaf8f3;color:#00875f;font-weight:900}
+.panel{background:#fff;border:1px solid #d8eee6;border-radius:24px;padding:22px;margin:27px 0;box-shadow:0 8px 30px rgba(0,100,70,.05)}.panel h3{font-size:21px}.sub{color:#8a9a95;font-size:13px;margin:3px 0 18px}.topup-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.amounts{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.amount{padding:13px 7px;border:1px solid var(--line);border-radius:12px;background:#fff;font-weight:850}.amount.active{border-color:var(--green);background:#eafaf4;color:#00845d}
+.qris{border:1px solid #8be1c5;background:#f3fffa;border-radius:15px;padding:15px;display:flex;align-items:center;gap:12px}.qris-icon{width:44px;height:44px;border-radius:11px;background:#fff;display:grid;place-items:center;font-weight:1000}.qris small{display:block;color:#8a9c96;margin-top:2px}
+.pay{width:100%;margin-top:13px;padding:15px;border-radius:14px;background:linear-gradient(100deg,#00a978,#ed1474);color:#fff;font-weight:950}
+.tutorial{background:linear-gradient(100deg,#00a978,#08ad91 48%,#ed1474);color:#fff;border-radius:20px;padding:21px;margin:25px 0;box-shadow:0 10px 25px rgba(0,150,100,.16)}.tutorial h3{margin-bottom:10px}.tutorial ol{padding-left:23px;line-height:1.9;font-weight:750}.tutorial .note{margin-top:12px;background:rgba(0,0,0,.16);border-radius:11px;padding:9px 12px;font-size:13px}
+.history-empty{border:2px dashed #e2e9e7;border-radius:20px;padding:35px;text-align:center;color:#91a09b}.history-empty strong{display:block;color:#34473f;font-size:18px;margin:10px 0 4px}
+footer{text-align:center;color:#74847e;padding:28px 0 90px}
+.chat-fab{position:fixed;right:22px;bottom:22px;width:62px;height:62px;border-radius:50%;background:linear-gradient(135deg,#00a978,#ed1474);color:#fff;font-size:27px;box-shadow:0 12px 28px rgba(0,0,0,.22);z-index:30}
+.chat{position:fixed;right:18px;bottom:92px;width:min(410px,calc(100vw - 28px));height:min(620px,calc(100vh - 120px));background:#090d0c;color:#fff;border:1px solid #26302d;border-radius:22px;box-shadow:0 20px 60px rgba(0,0,0,.35);z-index:29;display:none;overflow:hidden}.chat.open{display:flex;flex-direction:column}
+.chat-head{padding:17px;background:linear-gradient(100deg,#101a16,#101b17);display:flex;align-items:center}.chat-icon{width:40px;height:40px;border-radius:50%;background:#063d2f;display:grid;place-items:center;margin-right:10px}.chat-head b{display:block}.chat-head small{color:#8e9b97}.status{color:#ff527e;font-size:11px;border:1px solid #a31f48;padding:3px 7px;border-radius:99px;margin-left:7px}.close{margin-left:auto;background:none;color:#aaa;font-size:25px}
+.quick{display:flex;gap:7px;overflow:auto;padding:10px;border-bottom:1px solid #202725}.quick button{white-space:nowrap;background:#1c2220;color:#dbe1df;border:1px solid #303936;border-radius:99px;padding:7px 10px;font-size:11px;font-weight:800}
+.offline{padding:8px;text-align:center;background:#310b18;color:#ff8ba7;font-size:12px;font-weight:750}.chat-body{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;padding:25px;background-image:radial-gradient(#202725 1px,transparent 1px);background-size:18px 18px}.welcome h3{margin:15px 0 7px}.welcome p{color:#929d99;font-size:13px;line-height:1.5}.spark{font-size:35px;background:#15133b;border:1px solid #4a3fb0;width:70px;height:70px;border-radius:22px;display:grid;place-items:center;margin:auto}
+.chat-input{display:flex;gap:8px;padding:11px;border-top:1px solid #252b29}.chat-input input{flex:1;background:#181d1b;border:1px solid #303633;color:#fff;border-radius:13px;padding:12px;outline:none}.send{width:50px;border-radius:13px;background:linear-gradient(135deg,#00a978,#ed1474);color:#fff;font-size:20px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;place-items:center;padding:18px;z-index:50}.modal.show{display:grid}.modal-card{background:#fff;width:min(450px,100%);border-radius:22px;padding:23px;box-shadow:0 20px 70px #0005}.modal-card h3{margin-bottom:5px}.modal-card p{color:#7c8d87;font-size:13px}.field{margin-top:14px}.field label{display:block;font-size:13px;font-weight:850;margin-bottom:6px}.field input{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;outline:none}.modal-actions{display:flex;gap:9px;margin-top:17px}.modal-actions button{flex:1;padding:12px;border-radius:12px;font-weight:900}.cancel{background:#edf2f0}.confirm{background:var(--dark);color:#fff}
+@media(max-width:650px){
+ .container{width:min(100% - 20px,1100px)}.topbar{height:70px}.brand h1{font-size:20px}.top-actions .outline{display:none}.hero{min-height:230px;margin-top:18px}.hero-content{padding:29px 25px}.hero h2{font-size:48px}.hero:after{font-size:24px}.section-head{align-items:flex-start}.title{font-size:23px}.sort{font-size:12px;padding:9px}.products{gap:10px}.thumb{height:160px}.thumb:before{font-size:47px}.info{padding:12px}.desc{font-size:13px;min-height:58px}.price{font-size:18px}.buy{font-size:13px}.topup-grid{grid-template-columns:1fr}.panel{padding:16px}.amounts{grid-template-columns:repeat(2,1fr)}footer{padding-bottom:100px}
+}
+@media(max-width:390px){.products{grid-template-columns:1fr}.thumb{height:190px}}
+
+.admin-item .admin-info{flex:1}.admin-info b{display:block}.admin-info small{color:var(--muted)}
+.admin-delete{background:#ffe9ef;color:#d51b61;padding:8px 10px;border-radius:10px;font-weight:850}
+</style>
+</head>
+<body>
+<header class="topbar">
+ <div class="container" style="display:flex;align-items:center">
+  <div class="brand"><div class="logo">F</div><div><h1>Faeq Store</h1><p>#1 Tempat Buy Produk Digital</p></div></div>
+  <div class="top-actions"><button class="btn outline" onclick="scrollToId('topup')">Top Up</button><button class="btn primary" onclick="openChat()">💬 Chat</button></div>
+ </div>
+</header>
+
+<div class="ticker"><span><b class="dot">●</b> Selamat datang di Faeq Store</span><span><b style="color:#ff7800">●</b> Produk murah, aman & terpercaya</span><span><b class="dot">●</b> Support realtime</span></div>
+
+<main class="container">
+ <section class="hero">
+  <div class="hero-content">
+   <span class="badge">⚡ #1 TEMPAT BUY DIGITAL</span>
+   <h2>FAEQ<br>STORE</h2>
+   <p>Produk digital murah, lengkap dan proses cepat.</p>
+   <button class="cta" onclick="scrollToId('products')">Lihat Produk →</button>
+  </div>
+ </section>
+
+ <div class="section-head" id="products"><h2 class="title">Produk Digital</h2><select class="sort"><option>🔥 Terpopuler</option><option>Harga Terendah</option><option>Terbaru</option></select></div>
+ <div class="categories">
+  <button class="cat active" onclick="filterCat('all',this)">Semua <small>59</small></button>
+  <button class="cat" onclick="filterCat('indo',this)">Indo 🇮🇩 <small>6</small></button>
+  <button class="cat" onclick="filterCat('rare',this)">Rare 📈 <small>5</small></button>
+  <button class="cat" onclick="filterCat('top',this)">Top Pick ⭐</button>
+ </div>
+
+ <section class="products">
+  <article class="product" data-cat="indo top">
+   <div class="thumb"><span class="ribbon">★ BARU • TOP PICK ★</span><span class="prodname">Bocil Main ML</span></div>
+   <div class="info"><p class="desc">🌿 Bocil Di C**iin Di Sekolah Sampai Keluar</p><div class="old">Rp 1.000</div><div class="price-row"><b class="price">Rp 500</b><span class="soldcount">Terjual 7</span></div><button class="buy" onclick="buyProduct('Bocil Main ML','Rp 500')">Beli Sekarang</button></div>
+  </article>
+  <article class="product" data-cat="rare">
+   <div class="thumb rare"><span class="ribbon rare">♛ RARE • LEGENDARY ★</span><span class="soldout">● STOK HABIS</span><span class="prodname">Bocil GAG [isi 50+]</span></div>
+   <div class="info"><p class="desc">Bocil GAG [isi 50+] Main Sendiri Sampai Keluar Air...</p><div class="old">Rp 55.000</div><div class="price-row"><b class="price">Rp 50.000</b><span style="color:#d26b72;font-size:13px;font-weight:800">Sisa: 0</span></div><button class="buy" disabled style="opacity:.5">Stok Habis</button></div>
+  </article>
+  <article class="product" data-cat="indo top">
+   <div class="thumb"><span class="ribbon">★ BARU • TOP PICK ★</span><span class="prodname">Paket Digital A</span></div>
+   <div class="info"><p class="desc">Paket digital pilihan dengan proses cepat.</p><div class="old">Rp 10.000</div><div class="price-row"><b class="price">Rp 5.000</b><span class="soldcount">Terjual 18</span></div><button class="buy" onclick="buyProduct('Paket Digital A','Rp 5.000')">Beli Sekarang</button></div>
+  </article>
+  <article class="product" data-cat="top">
+   <div class="thumb"><span class="ribbon">★ TOP PICK ★</span><span class="prodname">Paket Premium</span></div>
+   <div class="info"><p class="desc">Produk premium untuk kebutuhan digital kamu.</p><div class="old">Rp 25.000</div><div class="price-row"><b class="price">Rp 15.000</b><span class="soldcount">Terjual 12</span></div><button class="buy" onclick="buyProduct('Paket Premium','Rp 15.000')">Beli Sekarang</button></div>
+  </article>
+ </section>
+
+ <section class="panel" id="topup">
+  <h3>💳 Top Up Saldo</h3><p class="sub">Isi saldo akun kamu untuk membeli produk dengan cepat.</p>
+  <div class="topup-grid">
+   <div><b>Pilih Nominal</b><div class="amounts" style="margin-top:10px"><button class="amount active" onclick="pickAmount(this,10000)">Rp 10K</button><button class="amount" onclick="pickAmount(this,25000)">Rp 25K</button><button class="amount" onclick="pickAmount(this,50000)">Rp 50K</button><button class="amount" onclick="pickAmount(this,100000)">Rp 100K</button><button class="amount" onclick="pickAmount(this,200000)">Rp 200K</button><button class="amount" onclick="pickAmount(this,500000)">Rp 500K</button></div></div>
+   <div><b>2. Pilih Metode Pembayaran</b><div class="qris" style="margin-top:10px"><div class="qris-icon">QRIS</div><div><b>QRIS - All payment</b><small>Pembayaran QRIS instan otomatis</small></div><span style="margin-left:auto;color:#00a978;font-size:23px">✓</span></div><button class="pay" onclick="startTopup()">Buat QRIS Otomatis ⚡</button></div>
+  </div>
+ </section>
+
+ <section class="tutorial">
+  <h3>✓ Informasi Cara Tutorial</h3>
+  <ol><li>Pilih nominal deposit & metode pembayaran.</li><li>Klik tombol buat transaksi pembayaran.</li><li>Scan QRIS atau transfer sesuai nomor tujuan.</li><li>Unggah foto struk / bukti transfer.</li><li>Tunggu verifikasi admin.</li></ol>
+  <div class="note">ⓘ Saldo masuk setelah pembayaran berhasil diverifikasi.</div>
+ </section>
+
+ <section class="panel">
+  <div style="display:flex;justify-content:space-between;align-items:center"><div><h3>🕘 Riwayat Top Up</h3><p class="sub" style="margin-bottom:0">Histori pengisian saldo akun Anda</p></div><span style="padding:7px 12px;border:1px solid #8be1c5;border-radius:99px;color:#00a978;font-weight:850;font-size:12px" id="historyCount">0 Transaksi</span></div>
+  <div class="history-empty" id="history"><div style="font-size:38px">▣</div><strong>Belum Ada Riwayat Transaksi</strong><p>Transaksi pengisian saldo Anda akan tercatat di sini.</p></div>
+ </section>
+</main>
+
+<footer>© 2026 Faeq Store. All rights reserved.</footer>
+
+<button class="chat-fab" onclick="toggleChat()">▢</button>
+<div class="chat" id="chat">
+ <div class="chat-head"><div class="chat-icon">◯</div><div><b>Live Chat Faeq <span class="status">OFFLINE</span></b><small>Bantuan Realtime & Customer Support</small></div><button class="close" onclick="toggleChat()">×</button></div>
+ <div class="quick"><button onclick="quick('Kendala Top Up Saldo')">⚡ Kendala Top Up</button><button onclick="quick('Cek Status Pesanan')">📦 Cek Pesanan</button><button onclick="quick('Tanya Stok Produk')">💬 Tanya Stok</button></div>
+ <div class="offline">ⓘ Admin offline. Pesan tetap tersimpan & dibalas secepatnya.</div>
+ <div class="chat-body"><div class="welcome"><div class="spark">✧</div><h3>Faeq Live Support</h3><p>Halo! Ada yang bisa kami bantu hari ini?<br>Pilih topik cepat di atas atau tulis pesan langsung.</p></div></div>
+ <div class="chat-input"><input id="chatInput" placeholder="Tulis pesan..." onkeydown="if(event.key==='Enter')sendChat()"><button class="send" onclick="sendChat()">➤</button></div>
+</div>
+
+<div class="modal" id="modal">
+ <div class="modal-card"><h3 id="modalTitle">Beli Produk</h3><p id="modalText"></p><div class="field"><label>Nama / Username</label><input id="buyer" placeholder="Masukkan username"></div><div class="field"><label>Catatan</label><input id="note" placeholder="Opsional"></div><div class="modal-actions"><button class="cancel" onclick="closeModal()">Batal</button><button class="confirm" onclick="confirmBuy()">Lanjut Pembayaran</button></div></div>
+</div>
+
+
+<script>
+let selectedAmount=10000,currentProduct='';
+const rupiah=n=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(n);
+function scrollToId(id){document.getElementById(id).scrollIntoView({behavior:'smooth'})}
+function filterCat(cat,el){document.querySelectorAll('.cat').forEach(x=>x.classList.remove('active'));el.classList.add('active');document.querySelectorAll('.product').forEach(p=>{p.style.display=cat==='all'||p.dataset.cat.split(' ').includes(cat)?'':'none'})}
+function pickAmount(el,n){document.querySelectorAll('.amount').forEach(x=>x.classList.remove('active'));el.classList.add('active');selectedAmount=n}
+function startTopup(){alert('Demo: transaksi QRIS dibuat untuk '+rupiah(selectedAmount)+'. Untuk pembayaran QRIS nyata, website perlu dihubungkan ke payment gateway/backend.')}
+function buyProduct(name,price){currentProduct=name;document.getElementById('modalTitle').textContent='Beli '+name;document.getElementById('modalText').textContent='Harga produk: '+price+'. Isi data lalu lanjut ke pembayaran.';document.getElementById('modal').classList.add('show')}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+function confirmBuy(){if(!document.getElementById('buyer').value.trim()){alert('Masukkan nama / username terlebih dahulu.');return}closeModal();alert('Demo checkout untuk '+currentProduct+'. Hubungkan ke payment gateway untuk transaksi nyata.')}
+function toggleChat(){document.getElementById('chat').classList.toggle('open')}
+function openChat(){document.getElementById('chat').classList.add('open')}
+function quick(text){document.getElementById('chatInput').value=text}
+function sendChat(){let i=document.getElementById('chatInput');if(!i.value.trim())return;alert('Pesan demo terkirim: '+i.value);i.value=''}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()})
+
+const defaultProducts = [
+ {name:"Bocil Main ML",desc:"🌿 Bocil Di C**iin Di Sekolah Sampai Keluar",price:500,old:1000,stock:7,cat:"indo top",badge:"★ BARU • TOP PICK ★"},
+ {name:"Bocil GAG [isi 50+]",desc:"Bocil GAG [isi 50+] Main Sendiri Sampai Keluar Air...",price:50000,old:55000,stock:0,cat:"rare",badge:"♛ RARE • LEGENDARY ★"},
+ {name:"Paket Digital A",desc:"Paket digital pilihan dengan proses cepat.",price:5000,old:10000,stock:18,cat:"indo top",badge:"★ BARU • TOP PICK ★"},
+ {name:"Paket Premium",desc:"Produk premium untuk kebutuhan digital kamu.",price:15000,old:25000,stock:12,cat:"top",badge:"★ TOP PICK ★"}
+];
+let adminProducts = JSON.parse(localStorage.getItem("faeq_products") || "null") || defaultProducts;
+
+function saveProducts(){localStorage.setItem("faeq_products",JSON.stringify(adminProducts))}
+function renderProducts(){
+ const box=document.querySelector(".products");
+ box.innerHTML="";
+ adminProducts.forEach((p,i)=>{
+  const rare=p.cat.includes("rare");
+  box.innerHTML += `<article class="product" data-cat="${p.cat}">
+   <div class="thumb ${rare?'rare':''}" ${p.image?`style="background-image:url(${p.image});background-size:cover;background-position:center"`:""}><span class="ribbon ${rare?'rare':''}">${p.badge||"★ BARU ★"}</span>${p.stock<=0?'<span class="soldout">● STOK HABIS</span>':''}<span class="prodname">${escapeHtml(p.name)}</span></div>
+   <div class="info"><p class="desc">${escapeHtml(p.desc)}</p><div class="old">${p.old?rupiah(p.old):''}</div><div class="price-row"><b class="price">${rupiah(p.price)}</b><span class="soldcount">${p.stock>0?'Stok: '+p.stock:'Sisa: 0'}</span></div>
+   <button class="buy" ${p.stock<=0?'disabled style="opacity:.5"':''} onclick="buyProduct('${jsSafe(p.name)}','${rupiah(p.price)}')">${p.stock>0?'Beli Sekarang':'Stok Habis'}</button></div></article>`;
+ });
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function jsSafe(s){return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'")}
+function openAdmin(){document.getElementById("adminModal").classList.add("show");renderAdminList()}
+function closeAdmin(){document.getElementById("adminModal").classList.remove("show")}
+function addAdminProduct(){
+ const name=document.getElementById("adminName").value.trim(), desc=document.getElementById("adminDesc").value.trim();
+ const price=Number(document.getElementById("adminPrice").value), old=Number(document.getElementById("adminOldPrice").value), stock=Number(document.getElementById("adminStock").value);
+ const cat=document.getElementById("adminCat").value;
+ if(!name||!price){alert("Nama dan harga wajib diisi.");return}
+ adminProducts.unshift({name,desc:desc||"Produk digital Faeq Store.",price,old,stock,cat,badge:cat==="rare"?"♛ RARE ★":cat==="top"?"★ TOP PICK ★":"★ BARU ★"});
+ saveProducts();renderProducts();renderAdminList();
+ ["adminName","adminDesc","adminPrice","adminOldPrice","adminStock"].forEach(id=>document.getElementById(id).value="");
+ alert("Produk berhasil ditambahkan.");
+}
+function deleteAdminProduct(i){if(confirm("Hapus produk ini?")){adminProducts.splice(i,1);saveProducts();renderProducts();renderAdminList()}}
+function renderAdminList(){
+ const box=document.getElementById("adminList"); if(!box)return;
+ box.innerHTML=adminProducts.length?adminProducts.map((p,i)=>`<div class="admin-item"><div class="admin-info"><b>${escapeHtml(p.name)}</b><small>${rupiah(p.price)} • Stok ${p.stock}</small></div><button class="admin-delete" onclick="deleteAdminProduct(${i})">Hapus</button></div>`).join(""):'<p style="color:#8a9a95">Belum ada produk.</p>';
+}
+document.getElementById("adminModal").addEventListener("click",e=>{if(e.target.id==="adminModal")closeAdmin()});
+renderProducts();
+</script>
+</body>
+</html>
