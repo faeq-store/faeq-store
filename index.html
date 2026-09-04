@@ -199,8 +199,11 @@ async function loadProductsFromSupabase(){
   renderProducts();
 }
 
-function saveProducts(){
-  // Produk utama sekarang disimpan di Supabase, bukan localStorage.
+async function saveProducts(){
+  const rows=adminProducts.map(p=>({id:p.id,name:p.name,description:p.desc,price:p.price,old_price:p.old,stock:p.stock,category:p.cat,image_url:p.image||""}));
+  const {error}=await supabaseClient.from("products").upsert(rows,{onConflict:"id"});
+  if(error){console.error(error);alert("Gagal menyimpan ke Supabase: "+error.message);return false;}
+  return true;
 }
 
 function renderProducts(){
@@ -262,7 +265,7 @@ function renderAdminList(){
  box.innerHTML=adminProducts.length?adminProducts.map((p,i)=>`<div class="admin-item"><div class="admin-info"><b>${escapeHtml(p.name)}</b><small>${rupiah(p.price)} • Stok ${p.stock}</small></div><button class="admin-delete" onclick="deleteAdminProduct(${i})">Hapus</button></div>`).join(""):'<p style="color:#8a9a95">Belum ada produk.</p>';
 }
 document.getElementById("adminModal").addEventListener("click",e=>{if(e.target.id==="adminModal")closeAdmin()});
-renderProducts();
+loadProductsFromSupabase();
 </script>
 </body>
 </html>
