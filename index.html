@@ -134,8 +134,13 @@ footer{text-align:center;color:#74847e;padding:28px 0 90px}
 </div>
 
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 let selectedAmount=10000,currentProduct='';
+
+const SUPABASE_URL = "https://jjqdtuwoafvdhsnzsyaf.supabase.co";
+const SUPABASE_KEY = "sb_publishable_bMCnRCMu8Yb0uqGUeGB2OQ_ek6WkJQr";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const rupiah=n=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(n);
 function scrollToId(id){document.getElementById(id).scrollIntoView({behavior:'smooth'})}
 function filterCat(cat,el){document.querySelectorAll('.cat').forEach(x=>x.classList.remove('active'));el.classList.add('active');document.querySelectorAll('.product').forEach(p=>{p.style.display=cat==='all'||p.dataset.cat.split(' ').includes(cat)?'':'none'})}
@@ -151,27 +156,94 @@ function sendChat(){let i=document.getElementById('chatInput');if(!i.value.trim(
 document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()})
 
 const defaultProducts = [
- {name:"Bocil Main ML",desc:"🌿 Bocil Di C**iin Di Sekolah Sampai Keluar",price:500,old:1000,stock:7,cat:"indo top",badge:"★ BARU • TOP PICK ★"},
- {name:"Bocil GAG [isi 50+]",desc:"Bocil GAG [isi 50+] Main Sendiri Sampai Keluar Air...",price:50000,old:55000,stock:0,cat:"rare",badge:"♛ RARE • LEGENDARY ★"},
- {name:"Paket Digital A",desc:"Paket digital pilihan dengan proses cepat.",price:5000,old:10000,stock:18,cat:"indo top",badge:"★ BARU • TOP PICK ★"},
- {name:"Paket Premium",desc:"Produk premium untuk kebutuhan digital kamu.",price:15000,old:25000,stock:12,cat:"top",badge:"★ TOP PICK ★"}
+{name:"Bocil Main ML",desc:"🌿 Bocil Di C**iin Di Sekolah Sampai Keluar",price:500,old:1000,stock:7,cat:"indo top",badge:"★ BARU • TOP PICK ★"},
+{name:"Bocil GAG [isi 50+]",desc:"Bocil GAG [isi 50+] Main Sendiri Sampai Keluar Air...",price:50000,old:55000,stock:0,cat:"rare",badge:"♛ RARE • LEGENDARY ★"},
+{name:"Paket Digital A",desc:"Paket digital pilihan dengan proses cepat.",price:5000,old:10000,stock:18,cat:"indo top",badge:"★ BARU • TOP PICK ★"},
+{name:"Paket Premium",desc:"Produk premium untuk kebutuhan digital kamu.",price:15000,old:25000,stock:12,cat:"top",badge:"★ TOP PICK ★"}
 ];
-let adminProducts = JSON.parse(localStorage.getItem("faeq_products") || "null") || defaultProducts;
 
-function saveProducts(){localStorage.setItem("faeq_products",JSON.stringify(adminProducts))}
-function renderProducts(){
- const box=document.querySelector(".products");
- box.innerHTML="";
- adminProducts.forEach((p,i)=>{
-  const rare=p.cat.includes("rare");
-  box.innerHTML += `<article class="product" data-cat="${p.cat}">
-   <div class="thumb ${rare?'rare':''}" ${p.image?`style="background-image:url(${p.image});background-size:cover;background-position:center"`:""}><span class="ribbon ${rare?'rare':''}">${p.badge||"★ BARU ★"}</span>${p.stock<=0?'<span class="soldout">● STOK HABIS</span>':''}<span class="prodname">${escapeHtml(p.name)}</span></div>
-   <div class="info"><p class="desc">${escapeHtml(p.desc)}</p><div class="old">${p.old?rupiah(p.old):''}</div><div class="price-row"><b class="price">${rupiah(p.price)}</b><span class="soldcount">${p.stock>0?'Stok: '+p.stock:'Sisa: 0'}</span></div>
-   <button class="buy" ${p.stock<=0?'disabled style="opacity:.5"':''} onclick="buyProduct('${jsSafe(p.name)}','${rupiah(p.price)}')">${p.stock>0?'Beli Sekarang':'Stok Habis'}</button></div></article>`;
- });
+let adminProducts = [];
+
+function normalizeProduct(p){
+  const cat = String(p.category || p.cat || "indo").toLowerCase();
+  return {
+    id:p.id,
+    name:p.name || "Produk",
+    desc:p.description || p.desc || "Produk digital Faeq Store.",
+    price:Number(p.price || 0),
+    old:Number(p.old_price || p.old || 0),
+    stock:Number(p.stock || 0),
+    cat:cat,
+    badge:p.badge || "★ BARU ★",
+    image:p.image_url || p.image || ""
+  };
 }
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-function jsSafe(s){return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'")}
+
+async function loadProductsFromSupabase(){
+  const box=document.querySelector(".products");
+  if(box) box.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:30px;color:#81918b">Memuat produk...</div>';
+
+  const {data,error}=await supabaseClient
+    .from("products")
+    .select("*")
+    .order("created_at",{ascending:false});
+
+  if(error){
+    console.error("Supabase:",error);
+    adminProducts = defaultProducts;
+    renderProducts();
+    return;
+  }
+
+  adminProducts = (data && data.length) ? data.map(normalizeProduct) : defaultProducts;
+  renderProducts();
+}
+
+function saveProducts(){
+  // Produk utama sekarang disimpan di Supabase, bukan localStorage.
+}
+
+function renderProducts(){
+  const box=document.querySelector(".products");
+  if(!box)return;
+  box.innerHTML="";
+
+  adminProducts.forEach((p)=>{
+    const rare=p.cat.includes("rare");
+    const imageStyle=p.image
+      ? `style="background-image:url('${String(p.image).replace(/'/g,"\\'")}');background-size:cover;background-position:center"`
+      : "";
+
+    box.innerHTML += `<article class="product" data-cat="${escapeHtml(p.cat)}">
+      <div class="thumb ${rare?'rare':''}" ${imageStyle}>
+        <span class="ribbon ${rare?'rare':''}">${escapeHtml(p.badge||"★ BARU ★")}</span>
+        ${p.stock<=0?'<span class="soldout">● STOK HABIS</span>':''}
+        <span class="prodname">${escapeHtml(p.name)}</span>
+      </div>
+      <div class="info">
+        <p class="desc">${escapeHtml(p.desc)}</p>
+        <div class="old">${p.old?rupiah(p.old):''}</div>
+        <div class="price-row">
+          <b class="price">${rupiah(p.price)}</b>
+          <span class="soldcount">${p.stock>0?'Stok: '+p.stock:'Sisa: 0'}</span>
+        </div>
+        <button class="buy" ${p.stock<=0?'disabled style="opacity:.5"':''}
+          onclick="buyProduct('${jsSafe(p.name)}','${rupiah(p.price)}')">
+          ${p.stock>0?'Beli Sekarang':'Stok Habis'}
+        </button>
+      </div>
+    </article>`;
+  });
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+
+function jsSafe(s){
+  return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+}
+
 function openAdmin(){document.getElementById("adminModal").classList.add("show");renderAdminList()}
 function closeAdmin(){document.getElementById("adminModal").classList.remove("show")}
 function addAdminProduct(){
