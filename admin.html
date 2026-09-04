@@ -63,7 +63,7 @@ async function addProduct(){
  let image_url="";
  if(file.files[0]) image_url=await toDataURL(file.files[0]);
  const badge=cat==="rare"?"♛ RARE ★":cat==="top"?"★ TOP PICK ★":"★ BARU ★";
- const {data,error}=await db.from("products").insert([{name,description:desc||"Produk digital Faeq Store.",price,old_price:old,stock,category:cat,badge,image_url}]).select();
+ const {data,error}=await db.from("products").insert([{name,description:desc||"Produk digital Faeq Store.",price,old_price:old,stock,category:cat,image_url}]).select();
  if(error){alert("Gagal menyimpan: "+error.message);return}
  alert("Produk berhasil disimpan ke Supabase!");
  ["name","desc","price","old","stock"].forEach(id=>document.getElementById(id).value="");
