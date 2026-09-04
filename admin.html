@@ -32,29 +32,52 @@ label{display:block;font-size:13px;font-weight:850;margin:13px 0 6px}input,selec
 </section>
 <section class="card"><h2>📦 Produk</h2><p class="sub">Tambah atau hapus produk yang tampil di toko.</p><div id="list"></div></section>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const defaults=[
-{name:"Bocil Main ML",desc:"🌿 Bocil Di C**iin Di Sekolah Sampai Keluar",price:500,old:1000,stock:7,cat:"indo top",badge:"★ BARU • TOP PICK ★"},
-{name:"Bocil GAG [isi 50+]",desc:"Bocil GAG [isi 50+] Main Sendiri Sampai Keluar Air...",price:50000,old:55000,stock:0,cat:"rare",badge:"♛ RARE • LEGENDARY ★"},
-{name:"Paket Digital A",desc:"Paket digital pilihan dengan proses cepat.",price:5000,old:10000,stock:18,cat:"indo top",badge:"★ BARU • TOP PICK ★"},
-{name:"Paket Premium",desc:"Produk premium untuk kebutuhan digital kamu.",price:15000,old:25000,stock:12,cat:"top",badge:"★ TOP PICK ★"}];
-let products=JSON.parse(localStorage.getItem("faeq_products")||"null")||defaults;
-const rp=n=>new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(n);
-function save(){localStorage.setItem("faeq_products",JSON.stringify(products));render()}
-function addProduct(){
- const name=document.getElementById("name").value.trim(),desc=document.getElementById("desc").value.trim();
- const price=+document.getElementById("price").value,old=+document.getElementById("old").value,stock=+document.getElementById("stock").value,cat=document.getElementById("cat").value;
- if(!name||!price){alert("Nama dan harga wajib diisi.");return}
- products.unshift({name,desc:desc||"Produk digital Faeq Store.",price,old,stock,cat,badge:cat==="rare"?"♛ RARE ★":cat==="top"?"★ TOP PICK ★":"★ BARU ★"});
- save();["name","desc","price","old","stock"].forEach(id=>document.getElementById(id).value="");alert("Produk berhasil disimpan.");
+const SUPABASE_URL="https://jjqdtuwoafvdhsnzsyaf.supabase.co";
+const SUPABASE_KEY="sb_publishable_bMCnRCMu8Yb0uqGUeGB2OQ_ek6WkJQr";
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const rupiah=n=>new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(n);
+let products=[];
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));}
+async function load(){
+ const list=document.getElementById("list"); list.innerHTML='<div class="empty">Memuat produk...</div>';
+ const {data,error}=await db.from("products").select("*").order("created_at",{ascending:false});
+ if(error){list.innerHTML='<div class="empty">Gagal memuat: '+esc(error.message)+'</div>';return;}
+ products=data||[]; render();
 }
-function del(i){if(confirm("Hapus produk ini?")){products.splice(i,1);save()}}
 function render(){
- const box=document.getElementById("list");
- box.innerHTML=products.length?products.map((p,i)=>`<div class="item"><div class="thumb">${p.image?`<img src="${p.image}" alt="">`:"F"}</div><div class="iteminfo"><b>${esc(p.name)}</b><small>${rp(p.price)} • Stok ${p.stock}</small></div><div class="actions"><button class="btn danger" onclick="del(${i})">Hapus</button></div></div>`).join(""):'<div class="empty">Belum ada produk.</div>';
+ const list=document.getElementById("list");
+ if(!products.length){list.innerHTML='<div class="empty">Belum ada produk di database.</div>';return;}
+ list.innerHTML=products.map((p,i)=>`<div class="item"><div class="thumb">${p.image_url?`<img src="${esc(p.image_url)}">`:'F'}</div><div class="iteminfo"><b>${esc(p.name)}</b><small>${rupiah(p.price)} • Stok ${p.stock} • ${esc(p.category||'')}</small></div><div class="actions"><button class="btn danger" onclick="deleteProduct(${i})">Hapus</button></div></div>`).join("");
 }
-function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
-render();
+async function addProduct(){
+ const name=document.getElementById("name").value.trim();
+ const desc=document.getElementById("desc").value.trim();
+ const price=Number(document.getElementById("price").value);
+ const old=Number(document.getElementById("old").value||0);
+ const stock=Number(document.getElementById("stock").value||0);
+ const cat=document.getElementById("cat").value;
+ const file=document.getElementById("image");
+ if(!name||!price){alert("Nama dan harga wajib diisi.");return}
+ let image_url="";
+ if(file.files[0]) image_url=await toDataURL(file.files[0]);
+ const badge=cat==="rare"?"♛ RARE ★":cat==="top"?"★ TOP PICK ★":"★ BARU ★";
+ const {data,error}=await db.from("products").insert([{name,description:desc||"Produk digital Faeq Store.",price,old_price:old,stock,category:cat,badge,image_url}]).select();
+ if(error){alert("Gagal menyimpan: "+error.message);return}
+ alert("Produk berhasil disimpan ke Supabase!");
+ ["name","desc","price","old","stock"].forEach(id=>document.getElementById(id).value="");
+ file.value=""; await load();
+}
+function toDataURL(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file)})}
+async function deleteProduct(i){
+ const p=products[i]; if(!confirm("Hapus "+p.name+"?"))return;
+ if(!p.id){alert("Produk ini tidak memiliki ID database.");return}
+ const {error}=await db.from("products").delete().eq("id",p.id);
+ if(error){alert("Gagal menghapus: "+error.message);return}
+ await load();
+}
+load();
 </script>
 </body>
 </html>
