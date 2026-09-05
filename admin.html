@@ -2,209 +2,53 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Faeq Store — Admin Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Faeq Store</title>
 <style>
-
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#f4f7f6;color:#17231f}header{background:#07110d;color:#fff;padding:18px}.wrap{width:min(1100px,calc(100% - 24px));margin:auto}.head{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{display:flex;align-items:center;gap:11px}.logo{width:43px;height:43px;border-radius:13px;background:linear-gradient(135deg,#00b978,#ed1474);display:grid;place-items:center;font-weight:950}.head h1{font-size:20px;margin:0}.head small{color:#9baaa5}.back{color:#fff;text-decoration:none;border:1px solid #39443f;padding:9px 13px;border-radius:11px;font-weight:800}.grid{display:grid;grid-template-columns:390px 1fr;gap:18px;margin:22px 0}.card{background:#fff;border:1px solid #dce9e4;border-radius:20px;padding:20px;box-shadow:0 8px 25px #163c3010}h2{font-size:20px;margin:0 0 5px}.sub{color:#7e9089;font-size:13px;margin:0 0 18px}label{display:block;font-size:13px;font-weight:850;margin:13px 0 6px}input,select{width:100%;padding:12px;border:1px solid #d8e6e1;border-radius:11px;outline:none;background:#fff}.row{display:grid;grid-template-columns:1fr 1fr;gap:9px}.btn{border:0;border-radius:12px;padding:12px 14px;font-weight:900;cursor:pointer}.add{width:100%;margin-top:16px;background:#07110d;color:#fff}.danger{background:#ffe8ee;color:#c91757}.item{display:flex;align-items:center;gap:12px;border:1px solid #e0ebe7;border-radius:14px;padding:12px;margin-top:10px}.thumb{width:58px;height:58px;border-radius:12px;background:linear-gradient(135deg,#00b978,#064535);display:grid;place-items:center;color:#fff;font-weight:950;overflow:hidden}.thumb img{width:100%;height:100%;object-fit:cover}.iteminfo{flex:1}.iteminfo b{display:block}.iteminfo small{color:#7e9089}.actions{display:flex;gap:6px}.empty{text-align:center;padding:35px;color:#82918c;border:2px dashed #e0e9e6;border-radius:15px}.notice{padding:12px;border-radius:12px;background:#effaf5;color:#087d5b;font-size:12px;line-height:1.5;margin-bottom:14px}.orders{margin-bottom:30px}.order{border:1px solid #e0ebe7;border-radius:14px;padding:14px;margin-top:10px;background:#fff}.ordertop{display:flex;justify-content:space-between;gap:10px;align-items:center}.status{font-size:12px;font-weight:900;padding:6px 9px;border-radius:999px;background:#fff3cd;color:#8a6500}.order b{display:block;margin-bottom:4px}.order small{color:#71827b;display:block;line-height:1.5}.order-actions{margin-top:10px;display:flex;gap:7px}.done{background:#e7fff4;color:#087d5b}.refresh{background:#eef3ff;color:#3558b8}@media(max-width:760px){.grid{grid-template-columns:1fr}.head{align-items:flex-start}.row{grid-template-columns:1fr 1fr}.ordertop{align-items:flex-start}}
-
+*{box-sizing:border-box}body{margin:0;background:#07070d;color:#fff;font-family:Arial,sans-serif}.wrap{max-width:1000px;margin:auto;padding:20px}
+.top,.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}h1{margin:0 0 6px}.muted{color:#aaa}
+.tabs{display:flex;gap:8px;margin:20px 0}.tab{padding:11px 15px;border:1px solid #333;background:#11131b;color:#fff;border-radius:10px;cursor:pointer}.tab.active{background:#fff;color:#000}
+.panel{background:#10111a;border:1px solid #292b38;border-radius:16px;padding:18px;margin-bottom:18px}.hidden{display:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+input,textarea{width:100%;padding:12px;margin:6px 0 10px;border:1px solid #333;background:#080910;color:#fff;border-radius:9px}
+button{border:0;border-radius:9px;padding:11px 14px;cursor:pointer;font-weight:700}.primary{background:#fff;color:#000}.danger{background:#d33;color:#fff}.ghost{background:#252735;color:#fff}
+.product,.order{border:1px solid #2c2e3b;border-radius:13px;padding:14px;margin:10px 0;background:#0b0c13}.product img{width:100%;height:150px;object-fit:cover;border-radius:10px;background:#191b25}
+.price{font-size:18px;font-weight:700}.badge{font-size:12px;color:#aaa}.status{padding:5px 9px;border-radius:20px;background:#262839;font-size:12px}.notice{padding:12px;border-radius:10px;background:#171927;color:#bbb;margin-bottom:12px}
 </style>
 </head>
 <body>
+<div class="wrap">
+<div class="top"><div><h1>⚡ Faeq Store — Admin</h1><div class="muted">Kelola produk dan pesanan masuk</div></div><button class="ghost" onclick="loadAll()">🔄 Refresh</button></div>
+<div class="tabs"><button class="tab active" id="tabProducts" onclick="showTab('products')">📦 Produk</button><button class="tab" id="tabOrders" onclick="showTab('orders')">🛒 Pesanan Masuk</button></div>
 
-<header><div class="wrap head"><div class="brand"><div class="logo">F</div><div><h1>Faeq Store Admin</h1><small>Kelola produk & pesanan</small></div></div><a class="back" href="index.html">← Toko</a></div></header>
-<main class="wrap">
-<section class="card orders"><div class="ordertop"><div><h2>🛒 Pesanan Masuk</h2><p class="sub">Pesanan pembeli dari website.</p></div><button class="btn refresh" onclick="loadOrders()">↻ Refresh</button></div><div id="orders"><div class="empty">Memuat pesanan...</div></div></section>
-<section class="grid">
-<section class="card"><h2>➕ Tambah Produk</h2><p class="sub">Produk tersimpan di Supabase dan tampil untuk semua pelanggan.</p><div class="notice">Gambar produk disimpan langsung sebagai data URL. Untuk produk banyak, nanti bisa dipindahkan ke Supabase Storage.</div>
-<label>Nama Produk</label><input id="name" placeholder="Contoh: Paket Premium"><label>Deskripsi</label><input id="desc" placeholder="Deskripsi produk"><label>Gambar Produk</label><input id="image" type="file" accept="image/*"><div class="row"><div><label>Harga</label><input id="price" type="number" placeholder="15000"></div><div><label>Harga Coret</label><input id="old" type="number" placeholder="25000"></div></div><div class="row"><div><label>Stok</label><input id="stock" type="number" placeholder="10"></div><div><label>Kategori</label><select id="cat"><option value="indo">Indo 🇮🇩</option><option value="rare">Rare 📈</option><option value="top">Top Pick ⭐</option></select></div></div><button class="btn add" onclick="addProduct()">Simpan Produk</button></section>
-<section class="card"><h2>📦 Produk</h2><p class="sub">Tambah atau hapus produk yang tampil di toko.</p><div id="list"></div></section>
+<section id="products">
+<div class="panel"><h2>Tambah Produk</h2><div class="grid">
+<div><label>Nama produk</label><input id="name" placeholder="Nama produk"></div>
+<div><label>Harga</label><input id="price" type="number" placeholder="10000"></div>
+<div><label>Harga lama</label><input id="oldPrice" type="number" placeholder="15000"></div>
+<div><label>Stok</label><input id="stock" type="number" value="10"></div>
+<div><label>Kategori</label><input id="category" placeholder="Akun / File / Top Up"></div>
+<div><label>URL gambar</label><input id="imageUrl" placeholder="https://..."></div>
+</div><label>Deskripsi</label><textarea id="description" rows="3" placeholder="Deskripsi produk"></textarea><button class="primary" onclick="addProduct()">➕ Tambah Produk</button></div>
+<div class="panel"><div class="row"><h2>Daftar Produk</h2><span id="productCount" class="muted"></span></div><div id="productList">Memuat...</div></div>
 </section>
-</main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<section id="orders" class="hidden"><div class="panel"><div class="row"><h2>🛒 Pesanan Masuk</h2><button class="ghost" onclick="loadOrders()">🔄 Refresh Pesanan</button></div>
+<div class="notice">Pesanan dari website akan muncul di sini. Email pembeli dapat digunakan untuk menghubungi pembeli.</div><div id="orderList">Memuat...</div></div></section>
+</div>
+
 <script>
-const SUPABASE_URL = "https://jjqdtuwoafvdhsnzsyaf.supabase.co";
-const SUPABASE_KEY = "sb_publishable_bMCnRCMu8Yb0uqGUeGB2OQ_ek6WkJQr";
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-const rupiah = n => new Intl.NumberFormat("id-ID", {
-  style: "currency",
-  currency: "IDR",
-  maximumFractionDigits: 0
-}).format(n || 0);
-
-let products = [];
-
-function esc(s) {
-  return String(s ?? "").replace(/[&<>"']/g, function (m) {
-    return {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      "\"": "&quot;",
-      "'": "&#039;"
-    }[m];
-  });
-}
-
-async function load() {
-  const list = document.getElementById("list");
-  list.innerHTML = '<div class="empty">Memuat produk...</div>';
-
-  const { data, error } = await db
-    .from("products")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    list.innerHTML = '<div class="empty">Gagal memuat: ' + esc(error.message) + '</div>';
-    return;
-  }
-
-  products = data || [];
-  render();
-}
-
-function render() {
-  const list = document.getElementById("list");
-
-  if (!products.length) {
-    list.innerHTML = '<div class="empty">Belum ada produk di database.</div>';
-    return;
-  }
-
-  list.innerHTML = products.map((p, i) => `
-    <div class="item">
-      <div class="thumb">
-        ${p.image_url ? `<img src="${esc(p.image_url)}" alt="">` : "F"}
-      </div>
-      <div class="iteminfo">
-        <b>${esc(p.name)}</b>
-        <small>${rupiah(p.price)} • Stok ${esc(p.stock)} • ${esc(p.category || "")}</small>
-      </div>
-      <div class="actions">
-        <button class="btn danger" onclick="deleteProduct(${i})">Hapus</button>
-      </div>
-    </div>
-  `).join("");
-}
-
-async function addProduct() {
-  const name = document.getElementById("name").value.trim();
-  const desc = document.getElementById("desc").value.trim();
-  const price = Number(document.getElementById("price").value);
-  const old = Number(document.getElementById("old").value || 0);
-  const stock = Number(document.getElementById("stock").value || 0);
-  const cat = document.getElementById("cat").value;
-  const file = document.getElementById("image");
-
-  if (!name || !price) {
-    alert("Nama dan harga wajib diisi.");
-    return;
-  }
-
-  let image_url = "";
-
-  if (file.files[0]) {
-    image_url = await toDataURL(file.files[0]);
-  }
-
-  const { error } = await db.from("products").insert([{
-    name,
-    description: desc || "Produk digital Faeq Store.",
-    price,
-    old_price: old,
-    stock,
-    category: cat,
-    image_url
-  }]);
-
-  if (error) {
-    alert("Gagal menyimpan: " + error.message);
-    return;
-  }
-
-  alert("Produk berhasil disimpan ke Supabase!");
-
-  ["name", "desc", "price", "old", "stock"].forEach(id => {
-    document.getElementById(id).value = "";
-  });
-
-  file.value = "";
-  await load();
-}
-
-function toDataURL(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-async function deleteProduct(i) {
-  const p = products[i];
-
-  if (!confirm("Hapus " + p.name + "?")) return;
-
-  const { error } = await db
-    .from("products")
-    .delete()
-    .eq("id", p.id);
-
-  if (error) {
-    alert("Gagal menghapus: " + error.message);
-    return;
-  }
-
-  await load();
-}
-
-async function loadOrders() {
-  const box = document.getElementById("orders");
-  box.innerHTML = '<div class="empty">Memuat pesanan...</div>';
-
-  const { data, error } = await db
-    .from("orders")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    box.innerHTML = '<div class="empty">Gagal memuat pesanan: ' + esc(error.message) + '</div>';
-    return;
-  }
-
-  if (!data || !data.length) {
-    box.innerHTML = '<div class="empty">Belum ada pesanan masuk.</div>';
-    return;
-  }
-
-  box.innerHTML = data.map(o => {
-    const date = o.created_at
-      ? new Date(o.created_at).toLocaleString("id-ID")
-      : "-";
-
-    const status = o.status || "pending";
-
-    return `
-      <div class="order">
-        <div class="ordertop">
-          <div>
-            <b>${esc(o.product_name)}</b>
-            <small>📧 ${esc(o.buyer_email)}</small>
-            <small>🕒 ${esc(date)}</small>
-            ${o.note ? `<small>📝 ${esc(o.note)}</small>` : ""}
-          </div>
-          <span class="status">${esc(status)}</span>
-        </div>
-      </div>
-    `;
-  }).join("");
-}
-
-load();
-loadOrders();
+const SUPABASE_URL='https://jjqdtuwoafvdhsnzsyaf.supabase.co';
+const SUPABASE_KEY='sb_publishable_bMCnRCMu8Yb0uqGUeGB2OQ_ek6WkJQr';
+const headers={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
+function showTab(tab){document.getElementById('products').classList.toggle('hidden',tab!=='products');document.getElementById('orders').classList.toggle('hidden',tab!=='orders');document.getElementById('tabProducts').classList.toggle('active',tab==='products');document.getElementById('tabOrders').classList.toggle('active',tab==='orders');if(tab==='orders')loadOrders()}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function rupiah(n){return new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(Number(n)||0)}
+async function loadProducts(){const box=document.getElementById('productList');try{const r=await fetch(SUPABASE_URL+'/rest/v1/products?select=*&order=created_at.desc',{headers});if(!r.ok)throw Error(await r.text());const data=await r.json();document.getElementById('productCount').textContent=data.length+' produk';if(!data.length){box.innerHTML='<div class="muted">Belum ada produk.</div>';return}box.innerHTML=data.map(p=>`<div class="product"><div class="grid"><div>${p.image_url?`<img src="${esc(p.image_url)}" onerror="this.style.display='none'">`:''}</div><div><div class="row"><h3>${esc(p.name)}</h3><span class="badge">${esc(p.category||'')}</span></div><p class="muted">${esc(p.description||'')}</p><div class="price">${rupiah(p.price)}</div>${p.old_price?`<div class="muted">Harga lama: <s>${rupiah(p.old_price)}</s></div>`:''}<div class="row"><span>Stok: ${esc(p.stock)}</span><button class="danger" onclick="deleteProduct('${esc(p.id)}')">🗑️ Hapus</button></div></div></div></div>`).join('')}catch(e){box.innerHTML='<div class="muted">Gagal memuat produk: '+esc(e.message)+'</div>'}}
+async function addProduct(){const name=document.getElementById('name').value.trim(),price=Number(document.getElementById('price').value);if(!name||!price){alert('Nama dan harga wajib diisi.');return}const body={name,description:document.getElementById('description').value.trim(),price,old_price:Number(document.getElementById('oldPrice').value)||null,stock:Number(document.getElementById('stock').value)||0,category:document.getElementById('category').value.trim()||'Lainnya',image_url:document.getElementById('imageUrl').value.trim()||''};const r=await fetch(SUPABASE_URL+'/rest/v1/products',{method:'POST',headers:{...headers,'Prefer':'return=minimal'},body:JSON.stringify(body)});if(!r.ok){alert('Gagal menambah produk:\n'+await r.text());return}alert('Produk berhasil ditambahkan.');['name','price','oldPrice','description','category','imageUrl'].forEach(id=>document.getElementById(id).value='');document.getElementById('stock').value=10;loadProducts()}
+async function deleteProduct(id){if(!confirm('Hapus produk ini?'))return;const r=await fetch(SUPABASE_URL+'/rest/v1/products?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers});if(!r.ok){alert('Gagal menghapus produk:\n'+await r.text());return}loadProducts()}
+async function loadOrders(){const box=document.getElementById('orderList');box.innerHTML='Memuat pesanan...';try{const r=await fetch(SUPABASE_URL+'/rest/v1/orders?select=*&order=created_at.desc',{headers});if(!r.ok)throw Error(await r.text());const data=await r.json();if(!data.length){box.innerHTML='<div class="muted">Belum ada pesanan masuk.</div>';return}box.innerHTML=data.map(o=>`<div class="order"><div class="row"><strong>📦 ${esc(o.product_name)}</strong><span class="status">${esc(o.status||'pending')}</span></div><p>📧 <a href="mailto:${esc(o.buyer_email)}" style="color:#fff">${esc(o.buyer_email)}</a></p>${o.price!=null?`<p>💰 ${rupiah(o.price)}</p>`:''}${o.note?`<p>📝 ${esc(o.note)}</p>`:''}<small class="muted">🕒 ${o.created_at?new Date(o.created_at).toLocaleString('id-ID'):''}</small></div>`).join('')}catch(e){box.innerHTML='<div class="muted">Gagal memuat pesanan: '+esc(e.message)+'</div>'}}
+async function loadAll(){await loadProducts();if(!document.getElementById('orders').classList.contains('hidden'))await loadOrders()}loadAll();
 </script>
 </body>
 </html>
