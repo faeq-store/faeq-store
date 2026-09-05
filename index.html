@@ -163,7 +163,7 @@ footer{text-align:center;color:#74847e;padding:28px 0 90px}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-let selectedAmount=10000,currentProduct='';
+let selectedAmount=10000,currentProduct='',currentProductPrice=0;
 let customer=JSON.parse(localStorage.getItem('faeq_customer')||'null');
 let customerBalance=Number(localStorage.getItem('faeq_balance')||0);
 function updateAccount(){const b=document.getElementById('loginBtn');if(b)b.textContent=customer?'👤 '+customer.email.split('@')[0]:'👤 Login';const a=document.getElementById('accountBar');if(a)a.textContent=customer?'👤 '+customer.email+' • Saldo: '+rupiah(customerBalance):'👤 Belum login • Saldo: Rp0'}
@@ -189,9 +189,11 @@ function closeQris(){document.getElementById('qrisModal').classList.remove('show
 function markTopupPending(){
  const history=JSON.parse(localStorage.getItem('faeq_topup_history')||'[]');
  history.unshift({amount:selectedAmount,status:'Menunggu verifikasi',time:new Date().toISOString()});
+ customerBalance += selectedAmount;
+ localStorage.setItem('faeq_balance',String(customerBalance));
  localStorage.setItem('faeq_topup_history',JSON.stringify(history.slice(0,20)));
- closeQris(); renderHistory();
- alert('Pembayaran dicatat. Silakan tunggu verifikasi admin.');
+ closeQris(); renderHistory(); updateAccount();
+ alert('Top Up berhasil dicatat. Saldo bertambah '+rupiah(selectedAmount)+'.');
 }
 function renderHistory(){
  const history=JSON.parse(localStorage.getItem('faeq_topup_history')||'[]');
@@ -205,7 +207,7 @@ function renderHistory(){
  box.className='history';
  box.innerHTML=history.map(x=>`<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid #e7efec"><div><b>${rupiah(x.amount)}</b><div style="font-size:12px;color:#81918b">${new Date(x.time).toLocaleString('id-ID')}</div></div><span style="color:#d58b00;font-weight:800;font-size:12px">${escapeHtml(x.status)}</span></div>`).join('');
 }
-function buyProduct(name,price){if(!requireLogin())return;currentProduct=name;document.getElementById('modalTitle').textContent='Beli '+name;document.getElementById('modalText').textContent='Harga produk: '+price+'. Isi data lalu lanjut ke pembayaran.';document.getElementById('modal').classList.add('show')}
+function buyProduct(name,price){if(!requireLogin())return; if(Number(customerBalance)<Number(price)){alert('Saldo tidak cukup. Silakan Top Up terlebih dahulu.');return;} currentProduct=name;currentProductPrice=Number(price);document.getElementById('modalTitle').textContent='Beli '+name;document.getElementById('modalText').textContent='Harga produk: '+price+'. Isi data lalu lanjut ke pembayaran.';document.getElementById('modal').classList.add('show')}
 function closeModal(){document.getElementById('modal').classList.remove('show')}
 async function confirmBuy(){
  const email=customer?.email||document.getElementById('buyerEmail').value.trim().toLowerCase();
@@ -214,11 +216,16 @@ async function confirmBuy(){
  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){alert('Masukkan alamat email yang valid.');return}
  const btn=document.querySelector('#modal .confirm'); btn.disabled=true; btn.textContent='Menyimpan...';
  const product=currentProduct;
- const {error}=await supabaseClient.from('orders').insert([{product_name:product, buyer_email:email, note:note, status:'pending'}]);
+ const price=Number(currentProductPrice||0);
+ if(price>customerBalance){btn.disabled=false;btn.textContent='Lanjut Pembayaran';alert('Saldo tidak cukup.');return}
+ const {error}=await supabaseClient.from('orders').insert([{product_name:product, price:price, buyer_email:email, note:note, status:'pending'}]);
  btn.disabled=false; btn.textContent='Lanjut Pembayaran';
  if(error){console.error(error);alert('Pesanan belum tersimpan. Pastikan tabel orders sudah dibuat di Supabase.');return}
+ customerBalance -= price;
+ localStorage.setItem('faeq_balance',String(customerBalance));
+ updateAccount();
  closeModal();
- alert('Pesanan berhasil dicatat. Penjual akan menghubungi kamu melalui email.');
+ alert('Pesanan berhasil dicatat. Saldo terpotong '+rupiah(price)+'. Penjual akan menghubungi kamu melalui email.');
  document.getElementById('buyerEmail').value=''; document.getElementById('note').value='';
 }
 function toggleChat(){document.getElementById('chat').classList.toggle('open')}
@@ -325,4 +332,4 @@ updateAccount();
 loadProductsFromSupabase();
 </script>
 </body>
- </html>
+</html>
