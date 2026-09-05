@@ -155,7 +155,7 @@ footer{text-align:center;color:#74847e;padding:28px 0 90px}
 </div>
 
 <div class="modal" id="modal">
- <div class="modal-card"><h3 id="modalTitle">Beli Produk</h3><p id="modalText"></p><div class="field"><label>Nama / Username</label><input id="buyer" placeholder="Masukkan username"></div><div class="field"><label>Catatan</label><input id="note" placeholder="Opsional"></div><div class="modal-actions"><button class="cancel" onclick="closeModal()">Batal</button><button class="confirm" onclick="confirmBuy()">Lanjut Pembayaran</button></div></div>
+ <div class="modal-card"><h3 id="modalTitle">Beli Produk</h3><p id="modalText"></p><div class="field"><label>📧 Email Pembeli</label><input id="buyerEmail" type="email" placeholder="contoh@email.com" autocomplete="email"></div><div class="field"><label>Catatan</label><input id="note" placeholder="Opsional"></div><div class="modal-actions"><button class="cancel" onclick="closeModal()">Batal</button><button class="confirm" onclick="confirmBuy()">Lanjut Pembayaran</button></div></div>
 </div>
 
 
@@ -196,7 +196,20 @@ function renderHistory(){
 }
 function buyProduct(name,price){currentProduct=name;document.getElementById('modalTitle').textContent='Beli '+name;document.getElementById('modalText').textContent='Harga produk: '+price+'. Isi data lalu lanjut ke pembayaran.';document.getElementById('modal').classList.add('show')}
 function closeModal(){document.getElementById('modal').classList.remove('show')}
-function confirmBuy(){if(!document.getElementById('buyer').value.trim()){alert('Masukkan nama / username terlebih dahulu.');return}closeModal();alert('Demo checkout untuk '+currentProduct+'. Hubungkan ke payment gateway untuk transaksi nyata.')}
+async function confirmBuy(){
+ const email=document.getElementById('buyerEmail').value.trim().toLowerCase();
+ const note=document.getElementById('note').value.trim();
+ if(!email){alert('Masukkan email pembeli terlebih dahulu.');return}
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){alert('Masukkan alamat email yang valid.');return}
+ const btn=document.querySelector('#modal .confirm'); btn.disabled=true; btn.textContent='Menyimpan...';
+ const product=currentProduct;
+ const {error}=await supabaseClient.from('orders').insert([{product_name:product, buyer_email:email, note:note, status:'pending'}]);
+ btn.disabled=false; btn.textContent='Lanjut Pembayaran';
+ if(error){console.error(error);alert('Pesanan belum tersimpan. Pastikan tabel orders sudah dibuat di Supabase.');return}
+ closeModal();
+ alert('Pesanan berhasil dicatat. Penjual akan menghubungi kamu melalui email.');
+ document.getElementById('buyerEmail').value=''; document.getElementById('note').value='';
+}
 function toggleChat(){document.getElementById('chat').classList.toggle('open')}
 function openChat(){document.getElementById('chat').classList.add('open')}
 function quick(text){document.getElementById('chatInput').value=text}
