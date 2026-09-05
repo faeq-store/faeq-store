@@ -69,7 +69,7 @@ footer{text-align:center;color:#74847e;padding:28px 0 90px}
  </div>
 </header>
 
-<div id="accountBar" onclick="openLogin()" style="background:#07110d;color:#fff;padding:10px;text-align:center;font-weight:800;cursor:pointer">👤 Belum login • Saldo: Rp0</div><div class="ticker"><span><b class="dot">●</b> Selamat datang di Faeq Store</span><span><b style="color:#ff7800">●</b> Produk murah, aman & terpercaya</span><span><b class="dot">●</b> Support realtime</span></div>
+<div id="accountBar" onclick="openLogin()" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' ')openLogin()" style="background:#07110d;color:#fff;padding:10px;text-align:center;font-weight:800;cursor:pointer">👤 Belum login • Saldo: Rp0</div><div class="ticker"><span><b class="dot">●</b> Selamat datang di Faeq Store</span><span><b style="color:#ff7800">●</b> Produk murah, aman & terpercaya</span><span><b class="dot">●</b> Support realtime</span></div>
 
 <main class="container">
  <section class="hero">
@@ -166,8 +166,8 @@ footer{text-align:center;color:#74847e;padding:28px 0 90px}
 let selectedAmount=10000,currentProduct='',currentProductPrice=0;
 let customer=JSON.parse(localStorage.getItem('faeq_customer')||'null');
 let customerBalance=Number(localStorage.getItem('faeq_balance')||0);
-function updateAccount(){const b=document.getElementById('loginBtn');if(b)b.textContent=customer?'👤 '+customer.email.split('@')[0]:'👤 Login';const a=document.getElementById('accountBar');if(a)a.textContent=customer?'👤 '+customer.email+' • Saldo: '+rupiah(customerBalance):'👤 Belum login • Saldo: Rp0'}
-function openLogin(){if(customer){alert('Sudah login sebagai '+customer.email+'\nSaldo: '+rupiah(customerBalance));return}document.getElementById('loginModal').classList.add('show')}
+function updateAccount(){const b=document.getElementById('loginBtn');if(b)b.textContent=customer?'👤 '+customer.email.split('@')[0]:'👤 Login';const a=document.getElementById('accountBar');if(a){a.textContent=customer?'👤 '+customer.email+' • Saldo: '+rupiah(customerBalance):'👤 Belum login • Saldo: Rp0';a.style.cursor='pointer';}}
+function openLogin(){if(customer){if(confirm('Login sebagai '+customer.email+'\nSaldo: '+rupiah(customerBalance)+'\n\nKeluar dari akun?')){customer=null;customerBalance=0;localStorage.removeItem('faeq_customer');localStorage.removeItem('faeq_balance');updateAccount();renderHistory();}return}document.getElementById('loginModal').classList.add('show')}
 function closeLogin(){document.getElementById('loginModal').classList.remove('show')}
 function loginCustomer(){const e=document.getElementById('loginEmail').value.trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){alert('Masukkan email yang valid.');return}customer={email:e};localStorage.setItem('faeq_customer',JSON.stringify(customer));localStorage.setItem('faeq_balance',customerBalance);closeLogin();updateAccount();alert('Login berhasil! Saldo kamu: '+rupiah(customerBalance))}
 function requireLogin(){if(customer)return true;openLogin();return false}
@@ -207,7 +207,8 @@ function renderHistory(){
  box.className='history';
  box.innerHTML=history.map(x=>`<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid #e7efec"><div><b>${rupiah(x.amount)}</b><div style="font-size:12px;color:#81918b">${new Date(x.time).toLocaleString('id-ID')}</div></div><span style="color:#d58b00;font-weight:800;font-size:12px">${escapeHtml(x.status)}</span></div>`).join('');
 }
-function buyProduct(name,price){if(!requireLogin())return; if(Number(customerBalance)<Number(price)){alert('Saldo tidak cukup. Silakan Top Up terlebih dahulu.');return;} currentProduct=name;currentProductPrice=Number(price);document.getElementById('modalTitle').textContent='Beli '+name;document.getElementById('modalText').textContent='Harga produk: '+price+'. Isi data lalu lanjut ke pembayaran.';document.getElementById('modal').classList.add('show')}
+function parsePrice(value){if(typeof value==='number')return value;return Number(String(value).replace(/[^0-9]/g,''))||0}
+function buyProduct(name,price){if(!requireLogin())return;const numericPrice=parsePrice(price);if(customerBalance<numericPrice){alert('Saldo tidak cukup. Silakan Top Up terlebih dahulu.');return;}currentProduct=name;currentProductPrice=numericPrice;document.getElementById('modalTitle').textContent='Beli '+name;document.getElementById('modalText').textContent='Harga produk: '+rupiah(numericPrice)+'. Isi data lalu lanjut ke pembayaran.';document.getElementById('modal').classList.add('show')}
 function closeModal(){document.getElementById('modal').classList.remove('show')}
 async function confirmBuy(){
  const email=customer?.email||document.getElementById('buyerEmail').value.trim().toLowerCase();
@@ -310,7 +311,7 @@ function renderProducts(){
           <span class="soldcount">${p.stock>0?'Stok: '+p.stock:'Sisa: 0'}</span>
         </div>
         <button class="buy" ${p.stock<=0?'disabled style="opacity:.5"':''}
-          onclick="buyProduct('${jsSafe(p.name)}','${rupiah(p.price)}')">
+          onclick="buyProduct('${jsSafe(p.name)}',${Number(p.price)||0})">
           ${p.stock>0?'Beli Sekarang':'Stok Habis'}
         </button>
       </div>
