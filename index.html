@@ -174,7 +174,7 @@ function normalizeProduct(p){
     old:Number(p.old_price || p.old || 0),
     stock:Number(p.stock || 0),
     cat:cat,
-    badge:p.badge || "★ BARU ★",
+    badge:p.badge || (cat.includes("rare") ? "♛ RARE • LEGENDARY ★" : cat.includes("top") ? "★ TOP PICK ★" : "★ BARU ★"),
     image:p.image_url || p.image || ""
   };
 }
@@ -247,24 +247,8 @@ function jsSafe(s){
   return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'");
 }
 
-function openAdmin(){document.getElementById("adminModal").classList.add("show");renderAdminList()}
-function closeAdmin(){document.getElementById("adminModal").classList.remove("show")}
-function addAdminProduct(){
- const name=document.getElementById("adminName").value.trim(), desc=document.getElementById("adminDesc").value.trim();
- const price=Number(document.getElementById("adminPrice").value), old=Number(document.getElementById("adminOldPrice").value), stock=Number(document.getElementById("adminStock").value);
- const cat=document.getElementById("adminCat").value;
- if(!name||!price){alert("Nama dan harga wajib diisi.");return}
- adminProducts.unshift({name,desc:desc||"Produk digital Faeq Store.",price,old,stock,cat,badge:cat==="rare"?"♛ RARE ★":cat==="top"?"★ TOP PICK ★":"★ BARU ★"});
- saveProducts();renderProducts();renderAdminList();
- ["adminName","adminDesc","adminPrice","adminOldPrice","adminStock"].forEach(id=>document.getElementById(id).value="");
- alert("Produk berhasil ditambahkan.");
-}
-function deleteAdminProduct(i){if(confirm("Hapus produk ini?")){adminProducts.splice(i,1);saveProducts();renderProducts();renderAdminList()}}
-function renderAdminList(){
- const box=document.getElementById("adminList"); if(!box)return;
- box.innerHTML=adminProducts.length?adminProducts.map((p,i)=>`<div class="admin-item"><div class="admin-info"><b>${escapeHtml(p.name)}</b><small>${rupiah(p.price)} • Stok ${p.stock}</small></div><button class="admin-delete" onclick="deleteAdminProduct(${i})">Hapus</button></div>`).join(""):'<p style="color:#8a9a95">Belum ada produk.</p>';
-}
-const adminModal=document.getElementById("adminModal"); if(adminModal){adminModal.addEventListener("click",e=>{if(e.target.id==="adminModal")closeAdmin()});}
+function openAdmin(){const m=document.getElementById("adminModal");if(m){m.classList.add("show");renderAdminList()}}
+function closeAdmin(){const m=document.getElementById("adminModal");if(m)m.classList.remove("show")}
 loadProductsFromSupabase();
 </script>
 </body>
