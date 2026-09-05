@@ -65,11 +65,11 @@ footer{text-align:center;color:#74847e;padding:28px 0 90px}
 <header class="topbar">
  <div class="container" style="display:flex;align-items:center">
   <div class="brand"><div class="logo">F</div><div><h1>Faeq Store</h1><p>#1 Tempat Buy Produk Digital</p></div></div>
-  <div class="top-actions"><button class="btn outline" onclick="scrollToId('topup')">Top Up</button><button class="btn primary" onclick="openChat()">💬 Chat</button></div>
+  <div class="top-actions"><button class="btn outline" onclick="scrollToId('topup')">Top Up</button><button class="btn outline" onclick="openLogin()" id="loginBtn">👤 Login</button><button class="btn primary" onclick="openChat()">💬 Chat</button></div>
  </div>
 </header>
 
-<div class="ticker"><span><b class="dot">●</b> Selamat datang di Faeq Store</span><span><b style="color:#ff7800">●</b> Produk murah, aman & terpercaya</span><span><b class="dot">●</b> Support realtime</span></div>
+<div id="accountBar" style="background:#07110d;color:#fff;padding:10px;text-align:center;font-weight:800">Saldo: Rp0</div><div class="ticker"><span><b class="dot">●</b> Selamat datang di Faeq Store</span><span><b style="color:#ff7800">●</b> Produk murah, aman & terpercaya</span><span><b class="dot">●</b> Support realtime</span></div>
 
 <main class="container">
  <section class="hero">
@@ -140,6 +140,8 @@ footer{text-align:center;color:#74847e;padding:28px 0 90px}
 </div>
 
 
+
+<div class="modal" id="loginModal"><div class="modal-card"><h3>👤 Login Customer</h3><p>Masukkan email untuk masuk ke akun Faeq Store.</p><div class="field"><label>Email</label><input id="loginEmail" type="email" placeholder="contoh@email.com"></div><div class="modal-actions"><button class="cancel" onclick="closeLogin()">Batal</button><button class="confirm" onclick="loginCustomer()">Masuk</button></div></div></div>
 <div class="qris-modal" id="qrisModal">
  <div class="qris-card">
   <h3>💳 Pembayaran QRIS</h3>
@@ -162,6 +164,14 @@ footer{text-align:center;color:#74847e;padding:28px 0 90px}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 let selectedAmount=10000,currentProduct='';
+let customer=JSON.parse(localStorage.getItem('faeq_customer')||'null');
+let customerBalance=Number(localStorage.getItem('faeq_balance')||0);
+function updateAccount(){const b=document.getElementById('loginBtn');if(b)b.textContent=customer?'👤 '+customer.email.split('@')[0]:'👤 Login';const a=document.getElementById('accountBar');if(a)a.textContent=customer?'👤 '+customer.email+' • Saldo: '+rupiah(customerBalance):'👤 Belum login • Saldo: Rp0'}
+function openLogin(){if(customer){alert('Sudah login sebagai '+customer.email+'\nSaldo: '+rupiah(customerBalance));return}document.getElementById('loginModal').classList.add('show')}
+function closeLogin(){document.getElementById('loginModal').classList.remove('show')}
+function loginCustomer(){const e=document.getElementById('loginEmail').value.trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){alert('Masukkan email yang valid.');return}customer={email:e};localStorage.setItem('faeq_customer',JSON.stringify(customer));localStorage.setItem('faeq_balance',customerBalance);closeLogin();updateAccount();alert('Login berhasil! Saldo kamu: '+rupiah(customerBalance))}
+function requireLogin(){if(customer)return true;openLogin();return false}
+
 
 const SUPABASE_URL = "https://jjqdtuwoafvdhsnzsyaf.supabase.co";
 const SUPABASE_KEY = "sb_publishable_bMCnRCMu8Yb0uqGUeGB2OQ_ek6WkJQr";
@@ -171,6 +181,7 @@ function scrollToId(id){document.getElementById(id).scrollIntoView({behavior:'sm
 function filterCat(cat,el){document.querySelectorAll('.cat').forEach(x=>x.classList.remove('active'));el.classList.add('active');document.querySelectorAll('.product').forEach(p=>{p.style.display=cat==='all'||p.dataset.cat.split(' ').includes(cat)?'':'none'})}
 function pickAmount(el,n){document.querySelectorAll('.amount').forEach(x=>x.classList.remove('active'));el.classList.add('active');selectedAmount=n}
 function startTopup(){
+  if(!requireLogin()) return;
  document.getElementById('qrisTotal').textContent=rupiah(selectedAmount);
  document.getElementById('qrisModal').classList.add('show');
 }
@@ -194,12 +205,12 @@ function renderHistory(){
  box.className='history';
  box.innerHTML=history.map(x=>`<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid #e7efec"><div><b>${rupiah(x.amount)}</b><div style="font-size:12px;color:#81918b">${new Date(x.time).toLocaleString('id-ID')}</div></div><span style="color:#d58b00;font-weight:800;font-size:12px">${escapeHtml(x.status)}</span></div>`).join('');
 }
-function buyProduct(name,price){currentProduct=name;document.getElementById('modalTitle').textContent='Beli '+name;document.getElementById('modalText').textContent='Harga produk: '+price+'. Isi data lalu lanjut ke pembayaran.';document.getElementById('modal').classList.add('show')}
+function buyProduct(name,price){if(!requireLogin())return;currentProduct=name;document.getElementById('modalTitle').textContent='Beli '+name;document.getElementById('modalText').textContent='Harga produk: '+price+'. Isi data lalu lanjut ke pembayaran.';document.getElementById('modal').classList.add('show')}
 function closeModal(){document.getElementById('modal').classList.remove('show')}
 async function confirmBuy(){
- const email=document.getElementById('buyerEmail').value.trim().toLowerCase();
+ const email=customer?.email||document.getElementById('buyerEmail').value.trim().toLowerCase();
  const note=document.getElementById('note').value.trim();
- if(!email){alert('Masukkan email pembeli terlebih dahulu.');return}
+ if(!email){alert('Login terlebih dahulu.');return}
  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){alert('Masukkan alamat email yang valid.');return}
  const btn=document.querySelector('#modal .confirm'); btn.disabled=true; btn.textContent='Menyimpan...';
  const product=currentProduct;
@@ -310,6 +321,7 @@ function jsSafe(s){
 
 
 renderHistory();
+updateAccount();
 loadProductsFromSupabase();
 </script>
 </body>
